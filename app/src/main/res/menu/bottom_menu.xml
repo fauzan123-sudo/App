@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/home"
+        android:title="Home"
+        android:icon="@drawable/ic_ring"
+        />
+       <item
+        android:id="@+id/absen"
+        android:title="absen"
+        android:icon="@drawable/ic_readme"
+        />
+    <item
+        android:id="@+id/scan"
+        android:title="Scan"
+        android:icon="@drawable/ic_qr"
+        />
+    <item
+        android:id="@+id/gaji"
+        android:title="Gaji"
+        android:icon="@drawable/ic_dollar"
+        />
+    <item
+        android:id="@+id/profile"
+        android:title="Berita Acara"
+        android:icon="@drawable/ic_history"
+        />
+</menu>

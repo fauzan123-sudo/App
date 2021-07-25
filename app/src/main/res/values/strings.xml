@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">App</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="logout">Logout</string>
+    <string name="nf_simple_message">fauzan gg</string>
+    <string name="nf_simple_title">ada berita baru</string>
+    <string name="nf_simple_ticker">woi ada yang baru</string>
+    <string name="nf_inbox_summary">Inbox</string>
+    <string name="square_blue_name">profile_pegawai</string>
+
+    <string-array name="numbers">
+        <item>Sakit</item>
+        <item>Izin</item>
+        <item>Tugas</item>
+    </string-array>
+</resources>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Dashboard">
+
+    <TextView
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/id"
+        android:text="hay"
+        android:visibility="invisible"
+        android:textColor="@color/black"
+        />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_logout"
+        android:layout_margin="20dp"
+        android:id="@+id/logout"
+        android:layout_alignParentEnd="true"
+        />
+
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_above="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <com.etebarian.meowbottomnavigation.MeowBottomNavigation
+        android:id="@+id/bottomNavigation"
+        app:mbn_circleColor="#ffffff"
+        app:mbn_backgroundBottomColor="@color/dark"
+        app:mbn_countBackgroundColor="#ff6f00"
+        app:mbn_defaultIconColor="@color/white"
+        app:mbn_rippleColor="@color/purple_700"
+        app:mbn_selectedIconColor="@color/red_font"
+        app:mbn_shadowColor="@color/white"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        android:layout_height="wrap_content" />
+
+
+</RelativeLayout>

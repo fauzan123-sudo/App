@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "162659687168",
+    "project_id": "app-wengky",
+    "storage_bucket": "app-wengky.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:162659687168:android:c240c09fa5116b6cde71e5",
+        "android_client_info": {
+          "package_name": "com.example.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "162659687168-c1nossu31v7eojskr2lsqop5g6voujr6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUV0swJYlVnI8lZkq2VS_4Faun4HMpI3k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "162659687168-c1nossu31v7eojskr2lsqop5g6voujr6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
