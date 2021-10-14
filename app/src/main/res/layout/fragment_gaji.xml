@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
+    android:background="#263238"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,7 +9,6 @@
     tools:context=".fragment.Gaji">
 
     <LinearLayout
-        android:background="@color/dark"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -22,54 +22,44 @@
                 android:layout_alignParentTop="true"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
                 android:src="@drawable/profil_circle"
                 android:transitionName="transitions"
                 />
-            <TextView
-                android:id="@+id/nama"
+            <LinearLayout
+                android:layout_centerVertical="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Fauzan Almaterzz"
-                android:textColor="@color/white"
-                android:textStyle="bold"
-                android:textSize="12sp"
-                android:layout_marginTop="18dp"
                 android:layout_toEndOf="@id/profile_image"
-                />
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/nama"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fauzan Almaterzz"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    />
 
-            <TextView
-                android:id="@+id/jabatan"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/nama"
-                android:layout_toEndOf="@id/profile_image"
-                android:fontFamily="@font/alex_brush"
-                android:text="Backend Android"
-                android:textColor="#E6E6E6"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                tools:ignore="SmallSp" />
-            <TextView
-                android:background="@drawable/shadow_text_dashboard"
-                android:textSize="6sp"
-                android:layout_margin="5dp"
-                android:textColor="@color/white"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Periode : Maret 2021"
-                />
-            <!--            </androidx.cardview.widget.CardView>-->
-
-
+                <TextView
+                    android:id="@+id/jabatan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/alex_brush"
+                    android:text="Backend Android"
+                    android:textColor="#E6E6E6"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    tools:ignore="SmallSp" />
+            </LinearLayout>
             <ImageView
                 android:id="@+id/filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_filter"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="20dp"
+                android:layout_centerVertical="true"
                 android:layout_marginEnd="20dp"
                 />
         </RelativeLayout>
@@ -137,7 +127,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Rp. 5.000.000"
+                android:text="Gaji belum tersedia"
                 android:textSize="24sp"
                 android:gravity="center"
                 android:textColor="@color/dark"
@@ -177,7 +167,7 @@
                             android:layout_marginEnd="30dp"
                             android:textSize="10sp"
                             android:gravity="right"
-                            android:text="Rp. 50.000"
+                            android:text="Rp. 0"
                             android:fontFamily="@font/arial"
                             android:textColor="@color/text_solid"
                             android:layout_marginStart="30dp"
@@ -210,7 +200,7 @@
                             android:layout_marginEnd="30dp"
                             android:textSize="10sp"
                             android:gravity="right"
-                            android:text="Rp. 250.000"
+                            android:text="Rp. 0"
                             android:fontFamily="@font/arial"
                             android:textColor="@color/text_solid"
                             android:layout_marginStart="30dp"
@@ -243,7 +233,7 @@
                             android:layout_marginEnd="30dp"
                             android:textSize="10sp"
                             android:gravity="right"
-                            android:text="Rp. 50.000"
+                            android:text="Rp. 0"
                             android:fontFamily="@font/arial"
                             android:textColor="@color/text_solid"
                             android:layout_marginStart="30dp"
@@ -266,7 +256,7 @@
                     <TableRow>
                         <TextView
                             android:textSize="10sp"
-                            android:text="Tidak Hadir"
+                            android:text="Total potongan"
                             android:textColor="@color/black"
                             android:layout_marginStart="30dp"
                             />
@@ -275,7 +265,7 @@
                             android:layout_marginEnd="30dp"
                             android:textSize="10sp"
                             android:gravity="right"
-                            android:text="50.000"
+                            android:text=" Rp. 0"
                             android:fontFamily="@font/arial"
                             android:textColor="@color/text_solid"
                             android:layout_marginStart="30dp"

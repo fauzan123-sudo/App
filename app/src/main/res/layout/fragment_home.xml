@@ -53,17 +53,7 @@
                     android:textStyle="bold"
                     tools:ignore="SmallSp" />
             </LinearLayout>
-                <TextView
-                    android:textSize="6sp"
-                    android:textColor="@color/white"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Periode : Maret 2021"
-                    android:background="@drawable/badge_textview_periode"
-                    android:layout_toLeftOf="@id/filter"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="10dp"
-                    />
+
             <ImageView
                 android:id="@+id/filter"
                 android:layout_width="wrap_content"
@@ -110,7 +100,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     />
-
             </RelativeLayout>
 
         </androidx.cardview.widget.CardView>
@@ -135,6 +124,19 @@
             android:textSize="12sp"
             android:fontFamily="@font/acme"
             />
+
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/chart1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/txtStatistik" />
+
+<!--        <com.github.mikephil.charting.charts.LineChart-->
+<!--            android:id="@+id/chart"-->
+<!--            android:layout_margin="20dp"-->
+<!--            android:layout_below="@+id/txtStatistik"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="400dp" />-->
 <!--        <com.anychart.AnyChartView-->
 <!--            android:id="@+id/any_chart_view"-->
 <!--            android:layout_below="@id/txtStatistik"-->

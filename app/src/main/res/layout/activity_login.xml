@@ -48,8 +48,11 @@
             android:textSize="10sp"
             />
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/username"
+            android:imeOptions="actionGo"
+            android:inputType="text"
+            android:singleLine="true"
             android:letterSpacing="0.1"
             android:fontFamily="@font/arial"
             android:backgroundTint="@color/white"
@@ -60,7 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Username"
-            android:text="fauzan"
+            android:textColor="@color/white"
             android:textColorHint="@color/white_trans"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
@@ -68,31 +71,40 @@
             android:textStyle="bold"
             />
 
-        <EditText
-            android:id="@+id/password"
-            android:letterSpacing="0.1"
-            android:inputType="textPassword"
-            android:fontFamily="@font/arial"
-            android:backgroundTint="@color/white"
-            android:paddingBottom="20dp"
-            android:drawableEnd="@drawable/ic_toogle_password"
-            android:paddingEnd="20dp"
-            android:paddingStart="20dp"
-            android:drawablePadding="20dp"
-            android:drawableStart="@drawable/ic_lock"
-            android:layout_marginTop="40dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Password"
-            android:text="123"
+        <com.google.android.material.textfield.TextInputLayout
             android:textColorHint="@color/white_trans"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:textStyle="bold"
-            />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/password"
+                android:imeOptions="actionDone"
+                android:singleLine="true"
+                android:letterSpacing="0.1"
+                android:inputType="textPassword"
+                android:fontFamily="@font/arial"
+                android:backgroundTint="@color/white"
+                android:paddingBottom="20dp"
+                android:textColor="@color/white"
+                android:paddingEnd="20dp"
+                android:paddingStart="20dp"
+                android:drawablePadding="20dp"
+                android:drawableStart="@drawable/ic_lock"
+                android:layout_marginTop="40dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                android:textColorHint="@color/white_trans"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:textStyle="bold"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <Button
             android:id="@+id/login"
+            android:imeOptions="actionDone"
+            android:singleLine="true"
             android:layout_marginTop="40dp"
             android:textAllCaps="false"
             android:text="Login"

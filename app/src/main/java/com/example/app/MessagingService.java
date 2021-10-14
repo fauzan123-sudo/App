@@ -1,19 +1,15 @@
 package com.example.app;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.app.helper.MyNotificationManager;
 import com.example.app.helper.NotificationHelper;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class MessagingService extends FirebaseMessagingService {
 
@@ -40,6 +36,7 @@ public class MessagingService extends FirebaseMessagingService {
             String text     = remoteMessage.getNotification().getBody();
             String sound    = remoteMessage.getNotification().getSound();
             NotificationHelper.displayNotification(getApplicationContext(), title, text, sound);
+
             if (/* Check if data needs to be processed by long running job */ true) {
                 // For long-running tasks (10 seconds or more) use Firebase Job Dispatcher.
 //                scheduleJob();

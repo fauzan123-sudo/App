@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.app.R;
 import com.example.app.model.ModelAbsen;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 
 public class AdapterAbsen extends RecyclerView.Adapter<AdapterAbsen.AdapterBaru> {
@@ -22,8 +24,9 @@ public class AdapterAbsen extends RecyclerView.Adapter<AdapterAbsen.AdapterBaru>
         this.modelAbsens = modelAbsens;
     }
 
+    @NotNull
     @Override
-    public AdapterBaru onCreateViewHolder(ViewGroup parent, int viewType) {
+    public AdapterBaru onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_absensi,parent,false);
         return new AdapterBaru(view);
     }
@@ -35,7 +38,6 @@ public class AdapterAbsen extends RecyclerView.Adapter<AdapterAbsen.AdapterBaru>
         String jam = modelAbsen.getmJam();
         String tanggal = modelAbsen.getmTanggal();
 
-
         holder.Tanggal.setText(tanggal);
         holder.Jam.setText(jam);
     }
@@ -45,7 +47,7 @@ public class AdapterAbsen extends RecyclerView.Adapter<AdapterAbsen.AdapterBaru>
         return modelAbsens.size();
     }
 
-    public class AdapterBaru extends RecyclerView.ViewHolder {
+    public static class AdapterBaru extends RecyclerView.ViewHolder {
         public TextView Jam,Tanggal;
         public AdapterBaru(View itemView) {
             super(itemView);

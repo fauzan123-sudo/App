@@ -2,6 +2,8 @@ package com.example.app;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,15 +16,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.app.adapter.IntroViewPagerAdapter;
 import com.example.app.model.ScreenItem;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.Manifest.permission.CAMERA;
 
 public class IntroActivity extends AppCompatActivity {
     private long backPressedTime;
@@ -41,7 +46,14 @@ public class IntroActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+        int currentApiVersion = Build.VERSION.SDK_INT;
+        if (currentApiVersion >= Build.VERSION_CODES.M) {
+            if (checkPermission()) {
+                Log.e("SCAN QR CODE", "Permission already granted!");
+            } else {
+                requestPermission();
+            }
+        }
         if (restorePrefData()) {
 
             Intent login = new Intent(getApplicationContext(),Login.class );
@@ -52,14 +64,12 @@ public class IntroActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_intro);
 
-
-
         // ini views
-        btnNext = findViewById(R.id.btn_next);
-        btnGetStarted = findViewById(R.id.btn_get_started);
-        tabIndicator = findViewById(R.id.tab_indicator);
-        btnAnim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.button_animation);
-        tvSkip = findViewById(R.id.tv_skip);
+        btnNext         = findViewById(R.id.btn_next);
+        btnGetStarted   = findViewById(R.id.btn_get_started);
+        tabIndicator    = findViewById(R.id.tab_indicator);
+        btnAnim         = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.button_animation);
+        tvSkip          = findViewById(R.id.tv_skip);
 
         // fill list screen
         final List<ScreenItem> mList = new ArrayList<>();
@@ -72,13 +82,11 @@ public class IntroActivity extends AppCompatActivity {
         mList.add(new ScreenItem("Fitur Berita Acara",
                 "Informasi berita acara kini telah hadir, dapatkan informasi terbaru anda jangan sampai ketinggalan ",
                 R.drawable.intro_berita_acara));
-        mList.add(new ScreenItem("Fitur Berita Acara",
-                "Informasi berita acara kini telah hadir, dapatkan informasi terbaru anda jangan sampai ketinggalan ",
-                R.drawable.intro_berita_acara));
+
 
         // setup viewpager
-        screenPager =findViewById(R.id.screen_viewpager);
-        introViewPagerAdapter = new IntroViewPagerAdapter(this,mList);
+        screenPager             =findViewById(R.id.screen_viewpager);
+        introViewPagerAdapter   = new IntroViewPagerAdapter(this,mList);
         screenPager.setAdapter(introViewPagerAdapter);
 
         // setup tablayout with viewpager
@@ -135,16 +143,26 @@ public class IntroActivity extends AppCompatActivity {
 
     }
 
+    private boolean checkPermission() {
+        return (ContextCompat.checkSelfPermission(this,
+                CAMERA) == PackageManager.PERMISSION_GRANTED);
+    }
+
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{CAMERA}, 200);
+    }
+
 
     private boolean restorePrefData() {
-        SharedPreferences pref = getApplicationContext().getSharedPreferences("myPrefs",MODE_PRIVATE);
-        return pref.getBoolean("isIntroOpnend",false);
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("mYpref3",MODE_PRIVATE);
+        return pref.getBoolean("isIntroOpnend3",false);
     }
 
     private void savePrefsData() {
-        SharedPreferences pref = getApplicationContext().getSharedPreferences("myPrefs",MODE_PRIVATE);
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("mYpref3",MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
-        editor.putBoolean("isIntroOpnend",true);
+        editor.putBoolean("isIntroOpnend3",true);
         editor.apply();
     }
 

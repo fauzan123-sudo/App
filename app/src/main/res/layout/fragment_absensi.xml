@@ -52,17 +52,6 @@
                 android:textStyle="bold"
                 tools:ignore="SmallSp" />
         </LinearLayout>
-        <TextView
-            android:textSize="6sp"
-            android:textColor="@color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Periode : Maret 2021"
-            android:background="@drawable/badge_textview_periode"
-            android:layout_toLeftOf="@id/filter"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="10dp"
-            />
 
         <ImageView
             android:id="@+id/filter"
@@ -177,7 +166,7 @@
                             android:layout_gravity="center"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="2"
+                            android:text="0"
                             android:fontFamily="@font/roboto_bold"
                             android:textStyle="bold"
                             android:textColor="@color/black"
@@ -323,15 +312,18 @@
                         android:textColor="#A3A3A3"
                         android:layout_column="1"
                         android:text="Jenis Izin"
+                        android:layout_gravity="center_vertical"
                         android:padding="3dip" />
                     <Spinner
-                        android:background="@color/white"
+                        android:layout_gravity="center_vertical"
                         android:id="@+id/jenis_izin"
                         android:fontFamily="@font/roboto_bold"
-                        android:textStyle="bold"
-                        android:textColor="#000000"
-                        android:gravity="right"
-                        android:padding="3dip" />
+                        tools:listitem="@layout/spinner_izin"
+                        android:textColor="@color/black"
+                        android:gravity="end"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        />
                 </TableRow>
 
                 <TableRow
@@ -348,16 +340,20 @@
                         android:id="@+id/Radio_Group"
                         android:orientation="horizontal">
                         <RadioButton
+                            android:textColor="@color/black"
                             android:layout_marginEnd="5dp"
                             android:id="@+id/rbJam"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:buttonTint="@color/black"
                             android:text="Jam"/>
                         <RadioButton
                             android:id="@+id/rbHari"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Hari"
+                            android:buttonTint="@color/black"
+                            android:textColor="@color/black"
                             />
                     </RadioGroup>
                 </TableRow>
@@ -415,6 +411,9 @@
                         android:text="Alasan"
                         android:padding="3dip" />
                     <EditText
+                        android:singleLine="true"
+                        android:inputType="text"
+                        android:imeOptions="actionDone"
                         android:background="@color/white"
                         android:id="@+id/alasan"
                         android:fontFamily="@font/roboto_bold"
@@ -425,6 +424,7 @@
                         android:padding="3dip" />
                 </TableRow>
                 <Button
+                    android:imeOptions="actionDone"
                     android:id="@+id/kirimDataIzin"
                     android:layout_marginStart="20dp"
                     android:layout_marginEnd="20dp"

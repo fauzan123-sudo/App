@@ -1,15 +1,20 @@
 package com.example.app.fragment;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
@@ -37,11 +43,25 @@ import com.example.app.MainActivity;
 import com.example.app.R;
 import com.example.app.adapter.ViewPagerAdapter;
 import com.example.app.helper.AppController;
-import com.example.app.helper.Constans;
 import com.example.app.helper.CustomVolleyRequest;
 import com.example.app.helper.SessionManager;
 import com.example.app.model.SliderUtils;
+//import com.github.mikephil.charting.charts.LineChart;
+//import com.github.mikephil.charting.components.XAxis;
+//import com.github.mikephil.charting.components.YAxis;
+//import com.github.mikephil.charting.data.Entry;
+//import com.github.mikephil.charting.data.LineData;
+//import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,25 +71,34 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.example.app.helper.Constans.BaseUrl;
-import static com.example.app.helper.Constans.URL;
+import static com.example.app.helper.Constans.TAG_JSON_OBJECT;
+import static com.example.app.helper.Constans.Total_Absensi2;
+import static com.example.app.helper.Constans.inputToken;
+import static com.example.app.helper.Constans.request_url;
+import static com.example.app.helper.Constans.urlImagePegawai;
 
 public class Home extends Fragment {
 
-    private static final int TAG_SIMPLE_NOTIFICATION = 1;
-    private static final int TAG_BIG_TEXT_NOTIFICATION = 2;
-    private static final String TAG_SUCCESS = "success";
-    public static final String inputToken = URL+"jajal/cekToken.php";
+    ProgressDialog pd;
+    int i,a;
+//    LineChart lineChart;
+ArrayList yAxis;
+    ArrayList yValues;
+    ArrayList xAxis1;
+    BarEntry values ;
+    BarChart chart;
+    BarData data;
+    LineChart lineChart;
+    private static final int TAG_SIMPLE_NOTIFICATION    = 1;
+    private static final int TAG_BIG_TEXT_NOTIFICATION  = 2;
+    private static final String TAG_SUCCESS             = "success";
     String CHANNEL_NAME = "MESSAGE";
     String Token;
-    String tag_json_obj = "json_obj_req";
-
     //    ViewPager
     ViewPager viewPager;
     int success;
@@ -80,11 +109,11 @@ public class Home extends Fragment {
     List<SliderUtils> sliderImg; //model
     ViewPagerAdapter viewPagerAdapter;//adapter
     Timer timer;
+    int currentApiVersion;
 
-    String request_url = BaseUrl + "gambarBerita.php";
-    TextView Nama;
-    String CHANNEL_ID = "my_channel_01";// The id of the channel.
-    String getId, getNama;
+    TextView Nama,Jabatan;
+    String CHANNEL_ID = "my_channel_01";
+    String getId, getNama, getImage, getJabatan;
     SessionManager sessionManager;
     CircleImageView profile_image;
     private NotificationManagerCompat notificationManager;
@@ -93,33 +122,55 @@ public class Home extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-
-        sessionManager = new SessionManager(requireActivity());
+        sessionManager          = new SessionManager(requireActivity());
         sessionManager.checkLogin();
-        notificationManager = NotificationManagerCompat.from(requireActivity());
-        Nama = view.findViewById(R.id.nama);
-        profile_image = view.findViewById(R.id.profile_image);
-        HashMap<String, String> user = sessionManager.getUserDetail();
-        getId = user.get(SessionManager.ID);
-        getNama = user.get(SessionManager.NAME);
-//        Notification = view.findViewById(R.id.ic_centang);
+        notificationManager     = NotificationManagerCompat.from(requireActivity());
+        Nama                    = view.findViewById(R.id.nama);
+        Jabatan                 = view.findViewById(R.id.jabatan);
 
-//        getImage = user.get(sessionManager.IMAGE);
-//        Picasso.get().load(getImage).into(profile_image);
-//        satu = view.findViewById(R.id.txt1);
-//        dua = view.findViewById(R.id.txt2);
-//        satu.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                showSimpleNotification();
-//            }
-//        });
-//        dua.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                showBigTextNotification();
-//            }
-//        });
+//        yAxis   = new ArrayList<Entry>();
+//        yValues = new ArrayList<String>();
+//        lineChart = view.findViewById(R.id.chart);
+
+        chart               = view.findViewById(R.id.chart1);
+//        LineDataSet lineDataSet = new LineDataSet(dataValues1(), "statistik bulan ini");
+//        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+//        dataSets.add(lineDataSet);
+//
+//        LineData data           = new LineData(dataSets);
+//        lineChart.setData(data);
+//        lineChart.invalidate();
+//        String ana = "absensi anda";
+//        lineChart.getDescription(ana);
+//        lineChart.setDescription("ana");
+
+        pd = new ProgressDialog(requireActivity());
+        pd.setMessage("loading");
+        profile_image           = view.findViewById(R.id.profile_image);
+        HashMap<String, String> user = sessionManager.getUserDetail();
+        getId                   = user.get(SessionManager.ID);
+        getNama                 = user.get(SessionManager.NAME);
+        getJabatan              = user.get(SessionManager.JABATAN);
+        getImage                = user.get(SessionManager.IMAGE);
+        load_data_from_server();
+
+        final Handler handler   = new Handler(Looper.getMainLooper());
+        Nama.setText(getNama);
+        Jabatan.setText(getJabatan);
+        Picasso.with(requireActivity())
+                .load(urlImagePegawai + getImage)
+                .into(profile_image);
+        handler.post(() -> {
+            currentApiVersion   = Build.VERSION.SDK_INT;
+            if (ActivityCompat.checkSelfPermission(requireActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(requireActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            } else {
+                checkRunTimePermission();
+            }
+        });
+
         profile_image.setOnClickListener(view1 -> ProfilPegawai());
         Nama.setText(getNama);
         FirebaseMessaging.getInstance().getToken()
@@ -137,7 +188,31 @@ public class Home extends Fragment {
                     Log.d("token","tokenya"+""+token);
                 });
 
-
+//        List<Entry> lineEntries = getDataSet();
+//        LineDataSet lineDataSet = new LineDataSet(lineEntries, "Statistik kehadiran");
+//        lineDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
+//        lineDataSet.setHighlightEnabled(true);
+//        lineDataSet.setLineWidth(2);
+//        lineDataSet.setColor(Color.RED);
+//        lineDataSet.setCircleColor(Color.YELLOW);
+//        lineDataSet.setCircleRadius(6);
+//        lineDataSet.setCircleHoleRadius(3);
+//        lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+//        lineDataSet.setDrawHighlightIndicators(true);
+//        lineDataSet.setHighLightColor(Color.RED);
+//        lineDataSet.setValueTextSize(12);
+//        lineDataSet.setValueTextColor(Color.DKGRAY);
+//
+//        LineData lineData = new LineData(lineDataSet);
+//        lineChart.getDescription().setText("Bulan ini");
+//        lineChart.getDescription().setTextSize(12);
+//        lineChart.setDrawMarkers(true);
+//        lineChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTH_SIDED);
+//        lineChart.animateY(1000);
+//        lineChart.getXAxis().setGranularityEnabled(true);
+//        lineChart.getXAxis().setGranularity(2.0f);
+//        lineChart.getXAxis().setLabelCount(lineDataSet.getEntryCount());
+//        lineChart.setData(lineData);
 
         sliderImg           = new ArrayList<>();
         viewPager           = view.findViewById(R.id.viewPager);
@@ -150,6 +225,7 @@ public class Home extends Fragment {
         };
         timer = new Timer();
         timer.schedule(timerTask, 5000, 5000);
+
         sendRequest();
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -169,8 +245,87 @@ public class Home extends Fragment {
             }
         });
 
-
         return view;
+    }
+
+    private void load_data_from_server() {
+        pd.show();
+        xAxis1 = new ArrayList<>();
+        yAxis = null;
+        yValues = new ArrayList<>();
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,
+                Total_Absensi2,
+                new Response.Listener() {
+                    @Override
+                    public void onResponse(Object response) {
+                        try {
+                            JSONArray jsonarray = new JSONArray(response);
+                            for(int i=0; i < jsonarray.length(); i++) {
+
+                                JSONObject jsonobject = jsonarray.getJSONObject(i);
+
+                                String score = jsonobject.getString("hadir").trim();
+                                String name = jsonobject.getString("izin").trim();
+
+                                xAxis1.add(name);
+                                values = new BarEntry(Float.valueOf(score),i);
+                                yValues.add(values);
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        BarDataSet barDataSet1 = new BarDataSet(yValues, "Statistic");
+                        barDataSet1.setColor(Color.rgb(0, 82, 159));
+
+                        yAxis = new ArrayList<>();
+                        yAxis.add(barDataSet1);
+                        String names[]= (String[]) xAxis1.toArray(new String[xAxis1.size()]);
+                        data = new BarData(names,yAxis);
+                        chart.setData(data);
+                        chart.setDescription("");
+                        chart.animateXY(2000, 2000);
+                        chart.invalidate();
+                        pd.hide();
+                    }
+                },
+                error -> {
+                    if(error != null){
+
+                        Toast.makeText(requireActivity(), "Something went wrong.", Toast.LENGTH_LONG).show();
+                        pd.hide();
+                    }
+                }
+
+        );
+        AppController.getInstance().addToRequestQueue(stringRequest, TAG_JSON_OBJECT);
+    }
+
+
+    private List<Entry> getDataSet() {
+        List<Entry> lineEntries = new ArrayList<>();
+        float[] ys1 = new float[]{80f, 90f, 80f, 90f, 80f, 80f, 100f};
+        float[] yx1 = new float[]{1f, 5f, 6f, 9f, 3f, 2f, 5f};
+        for (a = 0; a < yx1.length; a++) {
+            lineEntries.add(new Entry(i, a));
+        }
+
+        return lineEntries;
+    }
+
+
+    private void checkRunTimePermission() {
+    }
+
+    private ArrayList<Entry> dataValues1(){
+        ArrayList<Entry> dataVals = new ArrayList<>();
+        float[] x = new float[]{0, 10, 20,30};
+        int[] y = new int[]{};
+        dataVals.add(new Entry(4,10));
+        dataVals.add(new Entry(8,20));
+        return dataVals;
     }
 
     private void cekToken(String token) {
@@ -210,7 +365,7 @@ public class Home extends Fragment {
         };
 
         // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_json_obj);
+        AppController.getInstance().addToRequestQueue(strReq, TAG_JSON_OBJECT);
     }
 
     private void dialog() {
@@ -250,7 +405,7 @@ public class Home extends Fragment {
             };
 
             // Adding request to request queue
-            AppController.getInstance().addToRequestQueue(strReq, tag_json_obj);
+            AppController.getInstance().addToRequestQueue(strReq, TAG_JSON_OBJECT);
         });
         alert.show();
     }
@@ -265,16 +420,11 @@ public class Home extends Fragment {
     private void showSimpleNotification() {
         //Use the NotificationCompat compatibility library in order to get gingerbread support.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Notification notification = new NotificationCompat.Builder(requireActivity())
-                    //Title of the notification
+            Notification notification = new NotificationCompat.Builder(requireActivity(), CHANNEL_ID)
                     .setContentTitle(getString(R.string.nf_simple_title))
-                    //Content of the notification once opened
                     .setContentText(getString(R.string.nf_simple_message))
-                    //This bit will show up in the notification area in devices that support that
                     .setTicker(getString(R.string.nf_simple_ticker))
-                    //Icon that shows up in the notification area
                     .setSmallIcon(R.drawable.ic_absensi)
-                    //Icon that shows up in the drawer
                     .setLargeIcon(BitmapFactory.decodeResource(requireActivity().getResources(), R.drawable.ic_absensi))
                     //Set the intent
                     .setContentIntent(pendingIntentForNotification())
@@ -300,7 +450,7 @@ public class Home extends Fragment {
                     NotificationManager.IMPORTANCE_DEFAULT);
             manager.createNotificationChannel(channel);
         }
-        Notification notification = new NotificationCompat.Builder(requireActivity())
+        Notification notification = new NotificationCompat.Builder(requireActivity(), CHANNEL_ID)
                 .setContentTitle("fauzan")
                 //This will show on devices that don't support the big text and if further notifications
                 //come in after the big text notification.
@@ -320,42 +470,39 @@ public class Home extends Fragment {
 
 
     public void sendRequest() {
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, request_url, null, new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, request_url,
+                null, response -> {
 
-                for (int i = 0; i < response.length(); i++) {
-                    SliderUtils sliderUtils = new SliderUtils();
-                    try {
-                        JSONObject jsonObject = response.getJSONObject(i);
-                        sliderUtils.setSliderImageUrl(jsonObject.getString("image"));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    sliderImg.add(sliderUtils);
+            for (int i = 0; i < response.length(); i++) {
+                SliderUtils sliderUtils = new SliderUtils();
+                try {
+                    JSONObject jsonObject = response.getJSONObject(i);
+                    sliderUtils.setSliderImageUrl(jsonObject.getString("image"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                viewPagerAdapter = new ViewPagerAdapter(sliderImg, getActivity());
-                viewPager.setAdapter(viewPagerAdapter);
-                dotscount = viewPagerAdapter.getCount();
-                dots = new ImageView[dotscount];
+                sliderImg.add(sliderUtils);
+            }
+            viewPagerAdapter = new ViewPagerAdapter(sliderImg, getActivity());
+            viewPager.setAdapter(viewPagerAdapter);
+            dotscount        = viewPagerAdapter.getCount();
+            dots             = new ImageView[dotscount];
 
-                for (int i = 0; i < dotscount; i++) {
+            for (int i = 0; i < dotscount; i++) {
 
-                    dots[i] = new ImageView(getActivity());
-                    dots[i].setImageDrawable(ContextCompat.getDrawable(requireActivity(), R.drawable.non_active_dot));
+                dots[i] = new ImageView(getActivity());
+                dots[i].setImageDrawable(ContextCompat.getDrawable(requireActivity(), R.drawable.non_active_dot));
 
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
 
-                    params.setMargins(8, 0, 8, 0);
-
-                    sliderDotspanel.addView(dots[i], params);
-
-                }
-
-                dots[0].setImageDrawable(ContextCompat.getDrawable(requireActivity(), R.drawable.active_dot));
+                params.setMargins(8, 0, 8, 0);
+                sliderDotspanel.addView(dots[i], params);
 
             }
+
+            dots[0].setImageDrawable(ContextCompat.getDrawable(requireActivity(), R.drawable.active_dot));
+
         }, error -> Toast.makeText(getActivity(), "Error" + error.toString(), Toast.LENGTH_LONG).show());
 
         CustomVolleyRequest.getInstance(getActivity()).addToRequestQueue(jsonArrayRequest);
@@ -390,11 +537,12 @@ public class Home extends Fragment {
         sharedElementFragment2.setAllowReturnTransitionOverlap(false);
         sharedElementFragment2.setSharedElementEnterTransition(changeBoundsTransition);
 
-        assert getFragmentManager() != null;
-        getFragmentManager().beginTransaction()
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
                 .replace(R.id.fragment_container, sharedElementFragment2)
                 .addToBackStack(null)
                 .addSharedElement(profile_image, getString(R.string.square_blue_name))
                 .commit();
     }
+
 }

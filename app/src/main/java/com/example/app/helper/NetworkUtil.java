@@ -6,9 +6,8 @@ import android.net.NetworkInfo;
 
 public class NetworkUtil {
 
-
     public static String getNetworkState(Context context) {
-        String status = null;
+        String status;
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
@@ -22,12 +21,11 @@ public class NetworkUtil {
                 return status;
             }
 
-
         } else {
             status = "No internet";
             return status;
         }
 
-        return status;
+        return null;
     }
 }

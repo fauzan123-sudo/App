@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">App</string>
+    <string name="app_name">Wengky Online</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="logout">Logout</string>
@@ -8,6 +8,7 @@
     <string name="nf_simple_ticker">woi ada yang baru</string>
     <string name="nf_inbox_summary">Inbox</string>
     <string name="square_blue_name">profile_pegawai</string>
+    <string name="next">Next</string>
 
     <string-array name="numbers">
         <item>Sakit</item>

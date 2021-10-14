@@ -1,7 +1,6 @@
 package com.example.app.fragment;
 
 import android.content.pm.PackageManager;
-import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,90 +15,90 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.app.R;
+import com.example.app.helper.SessionManager;
 import com.google.zxing.Result;
 
+import org.jetbrains.annotations.NotNull;
+import java.util.HashMap;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
-
 import static android.Manifest.permission.CAMERA;
 
 public class Scan extends Fragment implements ZXingScannerView.ResultHandler {
-        private ZXingScannerView mScannerView;
-        private static final int REQUEST_CAMERA = 1;
-        private ZXingScannerView scannerView;
-        private static int camId = Camera.CameraInfo.CAMERA_FACING_BACK;
+    private ZXingScannerView mScannerView;
+    String getId;
+    SessionManager sessionManager;
+    String HasilScan;
+    private final String  TAG = Scan.class.getSimpleName();
 @Override
-public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        int currentApiVersion = Build.VERSION.SDK_INT;
-        if (currentApiVersion >= Build.VERSION_CODES.M) {
-        if (checkPermission()) {
-        //Toast.makeText(getApplicationContext(), "Permission already granted!", Toast.LENGTH_LONG).show();
-        Log.e("SCAN QR CODE", "Permission already granted!");
-        } else {
-        requestPermission();
-        }
-        }
-        mScannerView = new ZXingScannerView(getActivity());
-        return mScannerView;
-        }
+public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    requireActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    sessionManager      = new SessionManager(requireActivity());
+    HashMap<String, String> user = sessionManager.getUserDetail();
+    getId = user.get(SessionManager.ID);
 
-        @Override
-        public void onResume() {
-        super.onResume();
-        int currentapiVersion = Build.VERSION.SDK_INT;
-        if (currentapiVersion >= Build.VERSION_CODES.M) {
-        if (checkPermission()) {
+    int currentApiVersion = Build.VERSION.SDK_INT;
+    if (currentApiVersion >= Build.VERSION_CODES.M) {
+      if (checkPermission()) {
+      Log.e("SCAN QR CODE", "Permission already granted!");
+    } else {
+      requestPermission();
+      }
+    }
+    mScannerView = new ZXingScannerView(requireActivity());
+    return mScannerView;
+    }
+    @Override
+    public void onResume() {
+    super.onResume();
+    int currentapiVersion = Build.VERSION.SDK_INT;
+    if (currentapiVersion >= Build.VERSION_CODES.M) {
+      if (checkPermission()) {
         if (mScannerView == null) {
-        mScannerView = new ZXingScannerView( getActivity() );
-        getActivity().setContentView( mScannerView );
+          mScannerView = new ZXingScannerView( getActivity() );
+          requireActivity().setContentView( mScannerView );
         }
         mScannerView.setResultHandler( this );
         mScannerView.startCamera();
-        } else {
-        requestPermission();
-        }
-        }
-        mScannerView.setResultHandler(this);
-        mScannerView.startCamera();
-        }
+      } else {
+         requestPermission();
+      }
+    }
+    mScannerView.setResultHandler(this);
+    mScannerView.startCamera();
+    }
 
-        private boolean checkPermission() {
-        return (ContextCompat.checkSelfPermission(getActivity(), CAMERA) == PackageManager.PERMISSION_GRANTED);
-        }
+    private boolean checkPermission() {
+      return (ContextCompat.checkSelfPermission(requireActivity(),
+            CAMERA) == PackageManager.PERMISSION_GRANTED);
+    }
 
-        private void requestPermission() {
-        ActivityCompat.requestPermissions(getActivity(), new String[]{CAMERA}, 200);
-        }
+    private void requestPermission() {
+      ActivityCompat.requestPermissions(requireActivity(),
+            new String[]{CAMERA}, 200);
+    }
 
-        @Override
-        public void handleResult(Result rawResult) {
-                Bundle bundle = new Bundle();
-                bundle.putString("key", String.valueOf(rawResult)); // Put anything what you want
+    @Override
+    public void handleResult(Result rawResult) {
+        HasilScan = String.valueOf(rawResult);
 
-                Hasil_Scan fragment2 = new Hasil_Scan();
-                fragment2.setArguments(bundle);
+        Log.d(TAG, "handleResult: ");
+        Bundle bundle = new Bundle();
+        bundle.putString("key", String.valueOf(rawResult));
 
-                getFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, fragment2)
-                        .commit();
-//        Toast.makeText(getActivity(), "Contents = " + rawResult.getText() +
-//        ", Format = " + rawResult.getBarcodeFormat().toString(), Toast.LENGTH_SHORT).show();
+        Hasil_Scan fragment2 = new Hasil_Scan();
+        fragment2.setArguments(bundle);
 
-
+        requireActivity().getSupportFragmentManager()
+           .beginTransaction()
+           .replace(R.id.fragment_container, fragment2)
+           .commit();
         Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-        @Override
-        public void run() {
-        mScannerView.resumeCameraPreview(Scan.this);
+        handler.postDelayed(() -> mScannerView.resumeCameraPreview(Scan.this), 2000);
+    }
 
-        }
-        }, 2000);
-        }
-
-        @Override
-        public void onPause() {
-        super.onPause();
-        mScannerView.stopCamera();
-        }
+    @Override
+    public void onPause() {
+    super.onPause();
+    mScannerView.stopCamera();
+    }
 }

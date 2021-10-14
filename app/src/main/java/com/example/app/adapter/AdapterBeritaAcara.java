@@ -14,19 +14,22 @@ import com.example.app.helper.Constans;
 import com.example.app.model.Model_Berita_Acara;
 import com.squareup.picasso.Picasso;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 
 public class AdapterBeritaAcara extends RecyclerView.Adapter<AdapterBeritaAcara.ExampleViewHolder> {
-    private Context mContext;
+    private final Context mContext;
     public String BERITA_ACARA = Constans.urlImageBerita;
-    private ArrayList<Model_Berita_Acara> listBerita;
+    private final ArrayList<Model_Berita_Acara> listBerita;
 
     public AdapterBeritaAcara(Context context, ArrayList<Model_Berita_Acara> exampleList) {
-        mContext = context;
-        listBerita = exampleList;
+        mContext    = context;
+        listBerita  = exampleList;
     }
+    @NotNull
     @Override
-    public ExampleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ExampleViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(mContext).inflate(R.layout.item_berita_acara, parent, false);
         return new ExampleViewHolder(v);
     }
@@ -46,16 +49,10 @@ public class AdapterBeritaAcara extends RecyclerView.Adapter<AdapterBeritaAcara.
     public int getItemCount() {
         return listBerita.size();
     }
-    public class ExampleViewHolder extends RecyclerView.ViewHolder {
+    public static class ExampleViewHolder extends RecyclerView.ViewHolder {
         public ImageView Gambar;
         public TextView Judul;
         public TextView Keterangan;
-
-        public void addItem(Model_Berita_Acara item){
-//        ArrayList<String> exampleItems = new ArrayList<>();
-            listBerita.add(0,item);
-            notifyDataSetChanged();
-        }
 
         public ExampleViewHolder(View itemView) {
             super(itemView);

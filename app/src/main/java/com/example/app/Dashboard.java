@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -22,29 +23,49 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation;
 import com.example.app.fragment.Absensi;
 import com.example.app.fragment.BeritaAcara;
 import com.example.app.fragment.Gaji;
 import com.example.app.fragment.Home;
 import com.example.app.fragment.Scan;
+import com.example.app.helper.AppController;
 import com.example.app.helper.InternetCheckService;
 import com.example.app.helper.SessionManager;
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.example.app.Login.TAG_ID;
 import static com.example.app.helper.Constans.CHANNEL_DESC;
 import static com.example.app.helper.Constans.CHANNEL_ID;
 import static com.example.app.helper.Constans.CHANNEL_NAME;
+import static com.example.app.helper.Constans.Jumlah_data;
+import static com.example.app.helper.Constans.TAG_JSON_OBJECT;
+import static com.example.app.helper.Constans.TAG_MESSAGE;
+import static com.example.app.helper.Constans.TAG_SUCCESS;
 
 public class Dashboard extends AppCompatActivity {
     public String TAG = "Dashboard";
     ConnectivityManager conMgr;
+    int success;
     MeowBottomNavigation bottomNavigation;
     ImageView Logout;
-    TextView idnya;
+//    TextView idnya;
     BroadcastReceiver broadcastReceiver = null;
     SessionManager sessionManager;
-    String id;
+    String id, jumlah_data;
     SharedPreferences sharedpreferences;
     private long backPressedTime;
     private Toast backToast;
@@ -54,9 +75,9 @@ public class Dashboard extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         setContentView(R.layout.activity_dashboard);
-
         broadcastReceiver = new InternetCheckService();
         checkInternet();
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
@@ -98,16 +119,10 @@ public class Dashboard extends AppCompatActivity {
         bottomNavigation.add(new MeowBottomNavigation.Model(4, R.drawable.ic_dollar));
         bottomNavigation.add(new MeowBottomNavigation.Model(5, R.drawable.ic_history));
 
-        bottomNavigation.setCount(5, "2");
-
-
+//        bottomNavigation.setCount(5, jumlah_data);
 
         sharedpreferences = getSharedPreferences(Login.my_shared_preferences, Context.MODE_PRIVATE);
         id = getIntent().getStringExtra(TAG_ID);
-        idnya = findViewById(R.id.id);
-
-        idnya.setText("ID : " + id);
-
         bottomNavigation.show(1, true);
         replace(new Home());
         bottomNavigation.setOnClickMenuListener(model -> {
@@ -134,31 +149,7 @@ public class Dashboard extends AppCompatActivity {
             return null;
         });
 
-        Logout.setOnClickListener(view -> {
-            Keluar();
-//                boolean permission;
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                    permission = Settings.System.canWrite(Dashboard.this);
-//                } else {
-//                    permission = ContextCompat.checkSelfPermission(Dashboard.this, Manifest.permission.WRITE_SETTINGS) == PackageManager.PERMISSION_GRANTED;
-//                }
-//                if (!permission) {
-//                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-//                        Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-//                        intent.setData(Uri.parse("package:" + getPackageName()));
-//                        startActivityForResult(intent, 200);
-//
-//                    }
-//                    sessionManager.logout();
-//                }
-//
-//                if (ActivityCompat.checkSelfPermission(Dashboard.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-//                    Log.v("Permission", Manifest.permission.WRITE_EXTERNAL_STORAGE+"  Permission is revoked");
-//                    ActivityCompat.requestPermissions(Dashboard.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 200);
-//                    sessionManager.logout();
-//                    return;
-//                }
-        });
+        Logout.setOnClickListener(view -> Keluar());
     }
 
     private void checkInternet() {
@@ -182,10 +173,10 @@ public class Dashboard extends AppCompatActivity {
         // set pesan dari dialog
         alertDialogBuilder
                 .setMessage("Klik Ya untuk keluar!")
-                .setIcon(R.mipmap.ic_launcher)
+                .setIcon(R.mipmap.ic_wengky)
                 .setCancelable(false)
                 .setPositiveButton("Ya", (dialog, id) -> {
-                    // jika tombol diklik, maka akan menutup activity ini
+                    // TODO jika tombol diklik, maka akan menutup activity ini
                     SharedPreferences.Editor editor = sharedpreferences.edit();
                     editor.putBoolean(Login.session_status, false);
                     editor.putString(TAG_ID, null);
@@ -196,8 +187,8 @@ public class Dashboard extends AppCompatActivity {
                     startActivity(intent);
                 })
                 .setNegativeButton("Tidak", (dialog, id) -> {
-                    // jika tombol ini diklik, akan menutup dialog
-                    // dan tidak terjadi apa2
+                    // TODO jika tombol ini diklik, akan menutup dialog
+                    // TODO dan tidak terjadi apa2
                     dialog.cancel();
                 });
 
@@ -217,7 +208,6 @@ public class Dashboard extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
         Home home = new Home();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, home);
@@ -268,7 +258,5 @@ public class Dashboard extends AppCompatActivity {
         // menampilkan alert dialog
         alertDialog.show();
     }
-
-
 
 }

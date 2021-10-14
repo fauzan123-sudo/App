@@ -22,6 +22,7 @@ public class SessionManager {
     public static final String  EMAIL        = "USERNAME";
     public static final String  ID           = "ID";
     public static final String  IMAGE        = "IMAGE";
+    public static final String  JABATAN        = "JABATAN";
 
     public SessionManager(Context context) {
         this.context = context;
@@ -30,12 +31,13 @@ public class SessionManager {
 
     }
 
-    public void createSession(String name, String email, String id, String image){
+    public void createSession(String name, String email, String id, String image, String jabatan){
         editor.putBoolean(LOGIN, true);
         editor.putString(NAME, name);
         editor.putString(EMAIL, email);
         editor.putString(ID, id);
         editor.putString(IMAGE, image);
+        editor.putString(JABATAN, jabatan);
         editor.apply();
 
     }
@@ -59,6 +61,7 @@ public class SessionManager {
         user.put(EMAIL, sharedPreferences.getString(EMAIL, null));
         user.put(ID, sharedPreferences.getString(ID, null));
         user.put(IMAGE, sharedPreferences.getString(IMAGE, null));
+        user.put(JABATAN, sharedPreferences.getString(JABATAN, null));
         return user;
     }
 

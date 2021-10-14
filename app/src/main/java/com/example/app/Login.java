@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -19,6 +20,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.example.app.helper.AppController;
 import com.example.app.helper.Constans;
 import com.example.app.helper.SessionManager;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONException;
@@ -27,30 +29,33 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.app.helper.Constans.TAG_JSON_OBJECT;
+import static com.example.app.helper.Constans.URL_LOGIN;
+
 public class Login extends AppCompatActivity {
     private static final String TAG_SUCCESS = "success";
-    private static final String URL_LOGIN = Constans.BaseUrl + "login.php";
     private ProgressBar loading;
     private long backPressedTime;
     private Toast backToast;
     Boolean session = false;
     String id, email;
     int success;
-    String tag_json_obj = "json_obj_req";
     final String TAG = Login.class.getSimpleName();
-    public static final String my_shared_preferences = "my_shared_preferences";
-    public static final String session_status = "session_status";
+    public static final String my_shared_preferences = "my_shared_preferences1";
+    public static final String session_status = "session_status1";
     ConnectivityManager conMgr;
     SessionManager sessionManager;
-    public final static String TAG_ID = "id";
-    public final static String TAG_IMAGE = "image";
+    public final static String TAG_ID       = "id";
+    public final static String TAG_IMAGE    = "image";
     public final static String TAG_USERNAME = "username";
+    public final static String TAG_JABATAN = "username";
     SharedPreferences sharedpreferences;
-    EditText Username,Password;
+    TextInputEditText Username,Password;
     Button Login ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         setContentView(R.layout.activity_login);
 
         sessionManager = new SessionManager(this);
@@ -71,7 +76,6 @@ public class Login extends AppCompatActivity {
             }
         }
 
-
 // Cek session login jika TRUE maka langsung buka Beranda
         sharedpreferences = getSharedPreferences(my_shared_preferences, Context.MODE_PRIVATE);
         session           = sharedpreferences.getBoolean(session_status, false);
@@ -85,10 +89,15 @@ public class Login extends AppCompatActivity {
             startActivity(intent);
         }
 
-
         Login.setOnClickListener(view -> {
             String UserName = Username.getText().toString().trim();
             String PassWOrd = Password.getText().toString().trim();
+            if (UserName.isEmpty()){
+                Username.setError("harap isi username");
+            }
+            if (PassWOrd.isEmpty()){
+                Password.setError("harap isi password");
+            }
             if (!UserName.isEmpty() || !PassWOrd.isEmpty()) {
                 if (conMgr.getActiveNetworkInfo() != null
                         && conMgr.getActiveNetworkInfo().isAvailable()
@@ -97,10 +106,10 @@ public class Login extends AppCompatActivity {
                 } else {
                     Toast.makeText(Login.this, "tidak ada koneksi", Toast.LENGTH_SHORT).show();
                 }
+            }else{
+                Toast.makeText(this, "Harap isi Username dan password dulu!!", Toast.LENGTH_SHORT).show();
             }
-
         });
-
     }
 
     private void LoginUser(final String email, final String password) {
@@ -109,22 +118,22 @@ public class Login extends AppCompatActivity {
                 response -> {
                     try {
                         JSONObject jObj = new JSONObject(response);
-                        success = jObj.getInt(TAG_SUCCESS);
+                        success         = jObj.getInt(TAG_SUCCESS);
 
                         if (success == 1) {
-
-                            String name = jObj.getString("nama").trim();
-                            String email1 = jObj.getString("username").trim();
-                            String id = jObj.getString("id").trim();
-                            String image = jObj.getString("image").trim();
-
-                            sessionManager.createSession(name, email1, id, image);
+                            String name     = jObj.getString("nama").trim();
+                            String email1   = jObj.getString("username").trim();
+                            String id       = jObj.getString("id").trim();
+                            String image    = jObj.getString("image").trim();
+                            String jabatan  = jObj.getString("jabatan").trim();
+                            sessionManager.createSession(name, email1, id, image, jabatan);
 
                             // menyimpan login ke session
                             SharedPreferences.Editor editor = sharedpreferences.edit();
                             editor.putBoolean(session_status, true);
                             editor.putString(TAG_ID, id);
                             editor.putString(TAG_IMAGE, image);
+                            editor.putString(TAG_JABATAN, jabatan);
                             editor.apply();
 
                             Intent intent = new Intent(Login.this, Dashboard.class);
@@ -154,8 +163,7 @@ public class Login extends AppCompatActivity {
                 return params;
             }
         };
-
-        AppController.getInstance().addToRequestQueue(stringRequest, tag_json_obj);
+        AppController.getInstance().addToRequestQueue(stringRequest, TAG_JSON_OBJECT);
     }
 
     @Override

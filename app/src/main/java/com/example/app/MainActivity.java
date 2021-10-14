@@ -14,9 +14,9 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 public class MainActivity extends AppCompatActivity {
     EditText Hello;
-    static final String CHANNEL_ID = "technopoints_id";
-    static final String CHANNEL_NAME = "technopoints name";
-    static final String CHANNEL_DESC = "technopoints desc";
+    static final String CHANNEL_ID      = "technopoints_id";
+    static final String CHANNEL_NAME    = "technopoints name";
+    static final String CHANNEL_DESC    = "technopoints desc";
     final String TAG = MainActivity.class.getSimpleName();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
