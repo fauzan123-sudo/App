@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -19,8 +20,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,151 +27,156 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.transition.ChangeBounds;
-import androidx.transition.Fade;
-import androidx.viewpager.widget.ViewPager;
 
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.app.Login;
 import com.example.app.MainActivity;
+import com.example.app.Profil;
 import com.example.app.R;
-import com.example.app.adapter.ViewPagerAdapter;
+import com.example.app.adapter.SliderAdapterExample;
 import com.example.app.helper.AppController;
-import com.example.app.helper.CustomVolleyRequest;
 import com.example.app.helper.SessionManager;
-import com.example.app.model.SliderUtils;
-//import com.github.mikephil.charting.charts.LineChart;
-//import com.github.mikephil.charting.components.XAxis;
-//import com.github.mikephil.charting.components.YAxis;
-//import com.github.mikephil.charting.data.Entry;
-//import com.github.mikephil.charting.data.LineData;
-//import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.charts.BarChart;
+import com.example.app.model.SliderItem;
+
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LimitLine;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.squareup.picasso.Picasso;
+import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType;
+import com.smarteist.autoimageslider.SliderAnimations;
+import com.smarteist.autoimageslider.SliderView;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.example.app.Login.TAG_ID;
 import static com.example.app.helper.Constans.TAG_JSON_OBJECT;
-import static com.example.app.helper.Constans.Total_Absensi2;
+import static com.example.app.helper.Constans.berita;
 import static com.example.app.helper.Constans.inputToken;
-import static com.example.app.helper.Constans.request_url;
-import static com.example.app.helper.Constans.urlImagePegawai;
+import static com.example.app.helper.Constans.urlImageBerita;
 
 public class Home extends Fragment {
-
+    ArrayList<Entry> x = new ArrayList<>();
+    ArrayList<String> y = new ArrayList<>();
+    private LineChart mChart;
+    String Token;
+    SliderView sliderView;
+    ArrayList<SliderItem> sliderItems = new ArrayList<>();
+    private SliderAdapterExample adapter;
     ProgressDialog pd;
-    int i,a;
-//    LineChart lineChart;
-ArrayList yAxis;
-    ArrayList yValues;
-    ArrayList xAxis1;
-    BarEntry values ;
-    BarChart chart;
-    BarData data;
-    LineChart lineChart;
     private static final int TAG_SIMPLE_NOTIFICATION    = 1;
     private static final int TAG_BIG_TEXT_NOTIFICATION  = 2;
     private static final String TAG_SUCCESS             = "success";
     String CHANNEL_NAME = "MESSAGE";
-    String Token;
-    //    ViewPager
-    ViewPager viewPager;
     int success;
+    SharedPreferences sharedpreferences;
     String message;
-    LinearLayout sliderDotspanel;
-    private int dotscount;
-    private ImageView[] dots;
-    List<SliderUtils> sliderImg; //model
-    ViewPagerAdapter viewPagerAdapter;//adapter
-    Timer timer;
     int currentApiVersion;
-
     TextView Nama,Jabatan;
     String CHANNEL_ID = "my_channel_01";
     String getId, getNama, getImage, getJabatan;
     SessionManager sessionManager;
     CircleImageView profile_image;
     private NotificationManagerCompat notificationManager;
+//    ImageView Keluar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
+        sharedpreferences       = this.getActivity().getSharedPreferences(Login.my_shared_preferences, Context.MODE_PRIVATE);
         sessionManager          = new SessionManager(requireActivity());
         sessionManager.checkLogin();
         notificationManager     = NotificationManagerCompat.from(requireActivity());
-        Nama                    = view.findViewById(R.id.nama);
-        Jabatan                 = view.findViewById(R.id.jabatan);
-
-//        yAxis   = new ArrayList<Entry>();
-//        yValues = new ArrayList<String>();
-//        lineChart = view.findViewById(R.id.chart);
-
-        chart               = view.findViewById(R.id.chart1);
-//        LineDataSet lineDataSet = new LineDataSet(dataValues1(), "statistik bulan ini");
-//        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-//        dataSets.add(lineDataSet);
-//
-//        LineData data           = new LineData(dataSets);
-//        lineChart.setData(data);
-//        lineChart.invalidate();
-//        String ana = "absensi anda";
-//        lineChart.getDescription(ana);
-//        lineChart.setDescription("ana");
-
         pd = new ProgressDialog(requireActivity());
         pd.setMessage("loading");
-        profile_image           = view.findViewById(R.id.profile_image);
         HashMap<String, String> user = sessionManager.getUserDetail();
+        getId                   = user.get(SessionManager.ID);
+        Nama                    = view.findViewById(R.id.nama);
+        Jabatan                 = view.findViewById(R.id.jabatan);
+        profile_image           = view.findViewById(R.id.profile_image);
         getId                   = user.get(SessionManager.ID);
         getNama                 = user.get(SessionManager.NAME);
         getJabatan              = user.get(SessionManager.JABATAN);
         getImage                = user.get(SessionManager.IMAGE);
-        load_data_from_server();
 
+//        Keluar                  = view.findViewById(R.id.logOout);
+
+//        Chart
+        mChart = view.findViewById(R.id.chart1);
+        mChart.setDrawGridBackground(false);
+        mChart.setTouchEnabled(true);
+        mChart.setDragEnabled(true);
+        mChart.setScaleEnabled(true);
+        mChart.setPinchZoom(true);
+        mChart.setDrawBorders(true);
+
+        mChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTH_SIDED);
+        YAxis xAxis = mChart.getAxisRight();
+        xAxis.setEnabled(false);
+        YAxis leftAxis = mChart.getAxisLeft();
+        leftAxis.setAxisMinValue(0f);
+        leftAxis.setAxisMaxValue(40f);
+        leftAxis.setDrawLimitLinesBehindData(true);
+        LimitLine limitLine = new LimitLine(14, "Jarang Hadir");
+        limitLine.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
+        Legend l = mChart.getLegend();
+        l.setForm(Legend.LegendForm.LINE);
+        Graph_List();
+        
+//        Slider
+        loadData();
+        adapter    = new SliderAdapterExample(requireActivity(),sliderItems );
+        sliderView = view.findViewById(R.id.imageSlider);
+
+        sliderView.setSliderAdapter(adapter);
+        sliderView.setIndicatorAnimation(IndicatorAnimationType.WORM);
+        sliderView.setSliderTransformAnimation(SliderAnimations.SIMPLETRANSFORMATION);
+        sliderView.setAutoCycleDirection(SliderView.AUTO_CYCLE_DIRECTION_BACK_AND_FORTH);
+        sliderView.setIndicatorSelectedColor(Color.WHITE);
+        sliderView.setIndicatorUnselectedColor(Color.GRAY);
+        sliderView.setScrollTimeInSec(3);
+        sliderView.setAutoCycle(true);
+        sliderView.startAutoCycle();
+
+//        Keluar.setOnClickListener(view1 -> Logout());
+
+//        Nama.setText(getNama);
+//        Jabatan.setText(getJabatan);
+//        Picasso.with(requireActivity())
+//                .load(urlImagePegawai + getImage)
+//                .into(profile_image);
+//        profile_image.setOnClickListener(view1 -> ProfilPegawai());
+//        Nama.setText(getNama);
         final Handler handler   = new Handler(Looper.getMainLooper());
-        Nama.setText(getNama);
-        Jabatan.setText(getJabatan);
-        Picasso.with(requireActivity())
-                .load(urlImagePegawai + getImage)
-                .into(profile_image);
         handler.post(() -> {
             currentApiVersion   = Build.VERSION.SDK_INT;
             if (ActivityCompat.checkSelfPermission(requireActivity(),
                     Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(requireActivity(),
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            } else {
-                checkRunTimePermission();
             }
         });
 
-        profile_image.setOnClickListener(view1 -> ProfilPegawai());
-        Nama.setText(getNama);
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
@@ -184,148 +188,131 @@ ArrayList yAxis;
                     // Get new FCM registration token
                     String token = task.getResult();
                     Token = token;
-                    cekToken(token);
+//                    cekToken(token);
                     Log.d("token","tokenya"+""+token);
                 });
-
-//        List<Entry> lineEntries = getDataSet();
-//        LineDataSet lineDataSet = new LineDataSet(lineEntries, "Statistik kehadiran");
-//        lineDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-//        lineDataSet.setHighlightEnabled(true);
-//        lineDataSet.setLineWidth(2);
-//        lineDataSet.setColor(Color.RED);
-//        lineDataSet.setCircleColor(Color.YELLOW);
-//        lineDataSet.setCircleRadius(6);
-//        lineDataSet.setCircleHoleRadius(3);
-//        lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-//        lineDataSet.setDrawHighlightIndicators(true);
-//        lineDataSet.setHighLightColor(Color.RED);
-//        lineDataSet.setValueTextSize(12);
-//        lineDataSet.setValueTextColor(Color.DKGRAY);
-//
-//        LineData lineData = new LineData(lineDataSet);
-//        lineChart.getDescription().setText("Bulan ini");
-//        lineChart.getDescription().setTextSize(12);
-//        lineChart.setDrawMarkers(true);
-//        lineChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTH_SIDED);
-//        lineChart.animateY(1000);
-//        lineChart.getXAxis().setGranularityEnabled(true);
-//        lineChart.getXAxis().setGranularity(2.0f);
-//        lineChart.getXAxis().setLabelCount(lineDataSet.getEntryCount());
-//        lineChart.setData(lineData);
-
-        sliderImg           = new ArrayList<>();
-        viewPager           = view.findViewById(R.id.viewPager);
-        sliderDotspanel     = view.findViewById(R.id.SliderDots);
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                viewPager.post(() -> viewPager.setCurrentItem((viewPager.getCurrentItem() + 1) % dots.length));
-            }
-        };
-        timer = new Timer();
-        timer.schedule(timerTask, 5000, 5000);
-
-        sendRequest();
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
-            @Override
-            public void onPageSelected(int position) {
-                for(int i = 0; i< dotscount; i++){
-                    dots[i].setImageDrawable(ContextCompat.getDrawable(requireActivity(), R.drawable.non_active_dot));
-                }
-                dots[position].setImageDrawable(ContextCompat.getDrawable(requireActivity(), R.drawable.active_dot));
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
         return view;
     }
 
-    private void load_data_from_server() {
+    private void Logout() {
+        Toast.makeText(requireActivity(), "ini home", Toast.LENGTH_SHORT).show();
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                requireActivity());
+
+        // set title dialog
+        alertDialogBuilder.setTitle("Keluar dari aplikasi?");
+
+        // set pesan dari dialog
+        alertDialogBuilder
+                .setMessage("Klik Ya untuk keluar!")
+                .setIcon(R.mipmap.ic_wengky)
+                .setCancelable(false)
+                .setPositiveButton("Ya", (dialog, id) -> {
+                    // TODO jika tombol diklik, maka akan menutup activity ini
+                    SharedPreferences.Editor editor = sharedpreferences.edit();
+                    editor.putBoolean(Login.session_status, false);
+                    editor.putString(TAG_ID, null);
+                    editor.apply();
+
+                    Intent intent = new Intent(requireActivity(), Login.class);
+//                    finish();
+                    startActivity(intent);
+                })
+                .setNegativeButton("Tidak", (dialog, id) -> {
+                    // TODO jika tombol ini diklik, akan menutup dialog
+                    // TODO dan tidak terjadi apa2
+                    dialog.cancel();
+                });
+
+        // membuat alert dialog dari builder
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // menampilkan alert dialog
+        alertDialog.show();
+    }
+
+
+    private void Graph_List() {
+//        final ProgressDialog progressDialog = new ProgressDialog(requireActivity());
+        pd.setMessage("Loading...");
         pd.show();
-        xAxis1 = new ArrayList<>();
-        yAxis = null;
-        yValues = new ArrayList<>();
+        String url = "https://damha.000webhostapp.com/api/Data.json";
+        JsonArrayRequest jArr = new JsonArrayRequest(url, response -> {
+            pd.hide();
+            for (int i = 0; i < response.length(); i++) {
+                try {
+                    pd.hide();
+                    JSONObject obj = response.getJSONObject(i);
+                    int score      = obj.getInt("jumlah");
+                    String date    = obj.getString("bulan");
+                    x.add(new Entry(score, i));
+                    y.add(date);
+                } catch (JSONException e) {
+                    pd.hide();
+                    e.printStackTrace();
+                }
+            }
+            pd.hide();
+            LineDataSet set1 = new LineDataSet(x, Token);
+            set1.setCircleColor(Color.BLACK);
+            set1.setCircleColorHole(Color.BLACK);
+            set1.setColors(ColorTemplate.COLORFUL_COLORS);
+            set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+            set1.setLineWidth(3f);
+            set1.setCircleRadius(4f);
+            LineData data = new LineData(y, set1);
+            mChart.setData(data);
+            mChart.invalidate();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                Total_Absensi2,
-                new Response.Listener() {
-                    @Override
-                    public void onResponse(Object response) {
-                        try {
-                            JSONArray jsonarray = new JSONArray(response);
-                            for(int i=0; i < jsonarray.length(); i++) {
+        }, new Response.ErrorListener() {
 
-                                JSONObject jsonobject = jsonarray.getJSONObject(i);
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                pd.hide();
+                VolleyLog.d("error"+error, "Error: " + error.getMessage());
+                Toast.makeText(requireActivity(), "error", Toast.LENGTH_SHORT).show();
+            }
+        });
 
-                                String score = jsonobject.getString("hadir").trim();
-                                String name = jsonobject.getString("izin").trim();
+        AppController.getInstance().addToRequestQueue(jArr);
+    }
 
-                                xAxis1.add(name);
-                                values = new BarEntry(Float.valueOf(score),i);
-                                yValues.add(values);
-
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        BarDataSet barDataSet1 = new BarDataSet(yValues, "Statistic");
-                        barDataSet1.setColor(Color.rgb(0, 82, 159));
-
-                        yAxis = new ArrayList<>();
-                        yAxis.add(barDataSet1);
-                        String names[]= (String[]) xAxis1.toArray(new String[xAxis1.size()]);
-                        data = new BarData(names,yAxis);
-                        chart.setData(data);
-                        chart.setDescription("");
-                        chart.animateXY(2000, 2000);
-                        chart.invalidate();
+    private void loadData() {
+//        final ProgressDialog progressDialog = new ProgressDialog(requireActivity());
+        pd.setMessage("Loading...");
+        pd.show();
+        sliderItems.clear();
+        JsonArrayRequest jArr = new JsonArrayRequest(berita,
+            response -> {
+                pd.hide();
+                for (int i = 0; i < response.length(); i++) {
+                    try {
                         pd.hide();
-                    }
-                },
-                error -> {
-                    if(error != null){
+                        JSONObject obj = response.getJSONObject(i);
+                        SliderItem item = new SliderItem();
+                        String Title = obj.getString("title");
+                        String Image = obj.getString("image");
+                        item.setImageUrl(urlImageBerita+Image);
+                        item.setDescription(Title);
+                        sliderItems.add(item);
 
-                        Toast.makeText(requireActivity(), "Something went wrong.", Toast.LENGTH_LONG).show();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                         pd.hide();
+                        Log.d("catch"+e, "loadData: ");
                     }
                 }
+                adapter.notifyDataSetChanged();
 
-        );
-        AppController.getInstance().addToRequestQueue(stringRequest, TAG_JSON_OBJECT);
-    }
+            }, error -> {
+            pd.hide();
+            VolleyLog.e("terjadi error berita"+error, "Error: " + error.getMessage());
+            Toast.makeText(requireActivity(), "Error"+ error, Toast.LENGTH_LONG).show();
 
+        });
+        RequestQueue requestQueue = Volley.newRequestQueue(requireActivity());
+        requestQueue.add(jArr);
 
-    private List<Entry> getDataSet() {
-        List<Entry> lineEntries = new ArrayList<>();
-        float[] ys1 = new float[]{80f, 90f, 80f, 90f, 80f, 80f, 100f};
-        float[] yx1 = new float[]{1f, 5f, 6f, 9f, 3f, 2f, 5f};
-        for (a = 0; a < yx1.length; a++) {
-            lineEntries.add(new Entry(i, a));
-        }
-
-        return lineEntries;
-    }
-
-
-    private void checkRunTimePermission() {
-    }
-
-    private ArrayList<Entry> dataValues1(){
-        ArrayList<Entry> dataVals = new ArrayList<>();
-        float[] x = new float[]{0, 10, 20,30};
-        int[] y = new int[]{};
-        dataVals.add(new Entry(4,10));
-        dataVals.add(new Entry(8,20));
-        return dataVals;
     }
 
     private void cekToken(String token) {
@@ -364,7 +351,6 @@ ArrayList yAxis;
 
         };
 
-        // Adding request to request queue
         AppController.getInstance().addToRequestQueue(strReq, TAG_JSON_OBJECT);
     }
 
@@ -387,7 +373,6 @@ ArrayList yAxis;
 
                     }
                 } catch (JSONException e) {
-                    // JSON error
                     e.printStackTrace();
                 }
 
@@ -403,8 +388,6 @@ ArrayList yAxis;
                 }
 
             };
-
-            // Adding request to request queue
             AppController.getInstance().addToRequestQueue(strReq, TAG_JSON_OBJECT);
         });
         alert.show();
@@ -468,81 +451,45 @@ ArrayList yAxis;
         notificationManager.notify(TAG_BIG_TEXT_NOTIFICATION, notification);
     }
 
-
-    public void sendRequest() {
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, request_url,
-                null, response -> {
-
-            for (int i = 0; i < response.length(); i++) {
-                SliderUtils sliderUtils = new SliderUtils();
-                try {
-                    JSONObject jsonObject = response.getJSONObject(i);
-                    sliderUtils.setSliderImageUrl(jsonObject.getString("image"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                sliderImg.add(sliderUtils);
-            }
-            viewPagerAdapter = new ViewPagerAdapter(sliderImg, getActivity());
-            viewPager.setAdapter(viewPagerAdapter);
-            dotscount        = viewPagerAdapter.getCount();
-            dots             = new ImageView[dotscount];
-
-            for (int i = 0; i < dotscount; i++) {
-
-                dots[i] = new ImageView(getActivity());
-                dots[i].setImageDrawable(ContextCompat.getDrawable(requireActivity(), R.drawable.non_active_dot));
-
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
-
-                params.setMargins(8, 0, 8, 0);
-                sliderDotspanel.addView(dots[i], params);
-
-            }
-
-            dots[0].setImageDrawable(ContextCompat.getDrawable(requireActivity(), R.drawable.active_dot));
-
-        }, error -> Toast.makeText(getActivity(), "Error" + error.toString(), Toast.LENGTH_LONG).show());
-
-        CustomVolleyRequest.getInstance(getActivity()).addToRequestQueue(jsonArrayRequest);
-
-    }
-
     private void ProfilPegawai() {
-//        Profile fragment = new Profile();
-////        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-////            fragment.setSharedElementEnterTransition(new Profile());
-////            fragment.setEnterTransition(new Fade());
-////            setExitTransition(new Fade());
-////            fragment.setSharedElementReturnTransition(new Profile());
-////        }
-//        getActivity().getSupportFragmentManager()
-//                .beginTransaction()
+//        Profile sharedElementFragment2 = new Profile();
 //
-//                .addSharedElement(profile, profile.getTransitionName())
-//                .replace(R.id.container_fragment, fragment)
+//        Fade slideTransition = new Fade(Fade.MODE_IN);
+//        slideTransition.setDuration(1000);
+//
+//        ChangeBounds changeBoundsTransition = new ChangeBounds();
+//        changeBoundsTransition.setDuration(1000);
+//
+//        sharedElementFragment2.setEnterTransition(slideTransition);
+//        sharedElementFragment2.setAllowEnterTransitionOverlap(false);
+//        sharedElementFragment2.setAllowReturnTransitionOverlap(false);
+//        sharedElementFragment2.setSharedElementEnterTransition(changeBoundsTransition);
+//
+//        requireActivity().getSupportFragmentManager()
+//                .beginTransaction()
+//                .replace(R.id.fragment_container, sharedElementFragment2)
 //                .addToBackStack(null)
+//                .addSharedElement(profile_image, getString(R.string.square_blue_name))
 //                .commit();
-        Profile sharedElementFragment2 = new Profile();
-
-        Fade slideTransition = new Fade(Fade.MODE_IN);
-        slideTransition.setDuration(1000);
-
-        ChangeBounds changeBoundsTransition = new ChangeBounds();
-        changeBoundsTransition.setDuration(1000);
-
-        sharedElementFragment2.setEnterTransition(slideTransition);
-        sharedElementFragment2.setAllowEnterTransitionOverlap(false);
-        sharedElementFragment2.setAllowReturnTransitionOverlap(false);
-        sharedElementFragment2.setSharedElementEnterTransition(changeBoundsTransition);
-
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, sharedElementFragment2)
-                .addToBackStack(null)
-                .addSharedElement(profile_image, getString(R.string.square_blue_name))
-                .commit();
+        Intent intent = new Intent(requireActivity(), Profil.class);
+        startActivity(intent);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if ( pd!=null && pd.isShowing() )
+        {
+            pd.cancel();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if ( pd!=null && pd.isShowing() )
+        {
+            pd.cancel();
+        }
+    }
 }

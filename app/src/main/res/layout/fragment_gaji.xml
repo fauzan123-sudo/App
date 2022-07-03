@@ -12,57 +12,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/profile_image"
-                android:layout_margin="17dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_centerVertical="true"
-                android:src="@drawable/profil_circle"
-                android:transitionName="transitions"
-                />
-            <LinearLayout
-                android:layout_centerVertical="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/profile_image"
-                android:orientation="vertical">
-                <TextView
-                    android:id="@+id/nama"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Fauzan Almaterzz"
-                    android:textColor="@color/white"
-                    android:textStyle="bold"
-                    android:textSize="12sp"
-                    />
 
-                <TextView
-                    android:id="@+id/jabatan"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/alex_brush"
-                    android:text="Backend Android"
-                    android:textColor="#E6E6E6"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    tools:ignore="SmallSp" />
-            </LinearLayout>
-            <ImageView
-                android:id="@+id/filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_filter"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="20dp"
-                />
-        </RelativeLayout>
+        <include
+            layout="@layout/fragment_overlay"
+            />
 
         <RelativeLayout
             android:background="@drawable/background_dashboard"

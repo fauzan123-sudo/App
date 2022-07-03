@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -18,10 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.Request;
 import com.android.volley.toolbox.StringRequest;
 import com.example.app.helper.AppController;
-import com.example.app.helper.Constans;
 import com.example.app.helper.SessionManager;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,7 +47,7 @@ public class Login extends AppCompatActivity {
     public final static String TAG_USERNAME = "username";
     public final static String TAG_JABATAN = "username";
     SharedPreferences sharedpreferences;
-    TextInputEditText Username,Password;
+    TextInputEditText Usename,Password;
     Button Login ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +56,7 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         sessionManager = new SessionManager(this);
-        Username = findViewById(R.id.username);
+        Usename = findViewById(R.id.username);
         Password = findViewById(R.id.password);
         Login    = findViewById(R.id.login);
         loading  = findViewById(R.id.loading);
@@ -90,10 +87,10 @@ public class Login extends AppCompatActivity {
         }
 
         Login.setOnClickListener(view -> {
-            String UserName = Username.getText().toString().trim();
+            String UserName = Usename.getText().toString().trim();
             String PassWOrd = Password.getText().toString().trim();
             if (UserName.isEmpty()){
-                Username.setError("harap isi username");
+                Usename.setError("harap isi username");
             }
             if (PassWOrd.isEmpty()){
                 Password.setError("harap isi password");
@@ -112,54 +109,53 @@ public class Login extends AppCompatActivity {
         });
     }
 
-    private void LoginUser(final String email, final String password) {
+    private void LoginUser(final String etEmail, final String etPassword) {
         loading.setVisibility(View.VISIBLE);
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_LOGIN,
-                response -> {
-                    try {
-                        JSONObject jObj = new JSONObject(response);
-                        success         = jObj.getInt(TAG_SUCCESS);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_LOGIN, response -> {
+            try {
+                JSONObject jObj = new JSONObject(response);
+                success         = jObj.getInt(TAG_SUCCESS);
+                if (success == 1) {
+                    String name     = jObj.getString("nama").trim();
+                    String email1   = jObj.getString("username").trim();
+                    String id       = jObj.getString("id").trim();
+                    String image    = jObj.getString("image").trim();
+                    String jabatan  = jObj.getString("jabatan").trim();
+                    sessionManager.createSession(name, email1, id, image, jabatan);
 
-                        if (success == 1) {
-                            String name     = jObj.getString("nama").trim();
-                            String email1   = jObj.getString("username").trim();
-                            String id       = jObj.getString("id").trim();
-                            String image    = jObj.getString("image").trim();
-                            String jabatan  = jObj.getString("jabatan").trim();
-                            sessionManager.createSession(name, email1, id, image, jabatan);
+                    // menyimpan login ke session
+                    SharedPreferences.Editor editor = sharedpreferences.edit();
+                    editor.putBoolean(session_status, true);
+                    editor.putString(TAG_ID, id);
+                    editor.putString(TAG_IMAGE, image);
+                    editor.putString(TAG_JABATAN, jabatan);
+                    editor.apply();
 
-                            // menyimpan login ke session
-                            SharedPreferences.Editor editor = sharedpreferences.edit();
-                            editor.putBoolean(session_status, true);
-                            editor.putString(TAG_ID, id);
-                            editor.putString(TAG_IMAGE, image);
-                            editor.putString(TAG_JABATAN, jabatan);
-                            editor.apply();
+                    Intent intent = new Intent(Login.this, Dashboard.class);
+                    startActivity(intent);
+                    finish();
 
-                            Intent intent = new Intent(Login.this, Dashboard.class);
-                            startActivity(intent);
-                            finish();
-
-                        } else {
-                            Toast.makeText(Login.this, "periksa kembali username atau password anda", Toast.LENGTH_SHORT).show();
-                        }
-                        loading.setVisibility(View.GONE);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        loading.setVisibility(View.GONE);
-                        Toast.makeText(Login.this, "Error " + e.toString(), Toast.LENGTH_SHORT).show();
-                    }
-                },
-                error -> {
+                } else {
                     loading.setVisibility(View.GONE);
-                    Toast.makeText(Login.this, "Error " + error.toString(), Toast.LENGTH_SHORT).show();
-                }) {
+                    Toast.makeText(Login.this, "periksa kembali username atau password anda", Toast.LENGTH_SHORT).show();
+                }
+                loading.setVisibility(View.GONE);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                loading.setVisibility(View.GONE);
+                Toast.makeText(Login.this, "Error " + e.toString(), Toast.LENGTH_SHORT).show();
+            }
+        },error -> {
+                loading.setVisibility(View.GONE);
+                Toast.makeText(Login.this, "Error " + error.toString(), Toast.LENGTH_SHORT).show();
+            })
+        {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
-                params.put("username", email);
-                params.put("password", password);
+                params.put("username", etEmail);
+                params.put("password", etPassword);
                 return params;
             }
         };

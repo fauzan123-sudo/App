@@ -1,20 +1,28 @@
 package com.example.app.fragment;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.android.volley.Request;
 import com.android.volley.toolbox.StringRequest;
+import com.example.app.Dashboard;
+import com.example.app.Login;
 import com.example.app.R;
 import com.example.app.helper.AppController;
 import com.example.app.helper.Constans;
@@ -30,7 +38,9 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.example.app.helper.Constans.URL_READ;
+import static com.example.app.Login.TAG_ID;
+import static com.example.app.helper.Constans.PROFILE;
+import static com.example.app.helper.Constans.TAG_JSON_OBJECT;
 
 
 public class Profile extends Fragment {
@@ -38,10 +48,11 @@ public class Profile extends Fragment {
     TextView name, email, nip,jabatan, tgl_lahir,tempat_lahir, telepon, alamat, back2;
     String getId;
     SessionManager sessionManager;
+    SharedPreferences sharedpreferences;
     CircleImageView profile_image;
     private final String urlImagePegawai = Constans.urlImagePegawai;
-    String tag_json_obj = "json_obj_req";
     ImageView back1;
+    Button KelolaAkun, Logout;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,12 +63,14 @@ public class Profile extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        sharedpreferences       = requireActivity().getSharedPreferences(Login.my_shared_preferences, Context.MODE_PRIVATE);
         sessionManager = new SessionManager(requireActivity());
         sessionManager.checkLogin();
         HashMap<String, String> user = sessionManager.getUserDetail();
         getId = user.get(SessionManager.ID);
 
-        profile_image   = v.findViewById(R.id.profile_image);
+        KelolaAkun      = v.findViewById(R.id.kelolaAkun);
+        profile_image   = v.findViewById(R.id.profile_image3);
         name            = v.findViewById(R.id.nama);
         email           = v.findViewById(R.id.email);
         nip             = v.findViewById(R.id.nip);
@@ -68,20 +81,63 @@ public class Profile extends Fragment {
         alamat          = v.findViewById(R.id.alamat);
         back1           = v.findViewById(R.id.back1);
         back2           = v.findViewById(R.id.back2);
+        Logout          = v.findViewById(R.id.logout);
+        Logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        requireActivity());
+
+                // set title dialog
+                alertDialogBuilder.setTitle("Keluar dari aplikasi?");
+
+                // set pesan dari dialog
+                alertDialogBuilder
+                        .setMessage("Klik Ya untuk keluar!")
+                        .setIcon(R.mipmap.ic_wengky)
+                        .setCancelable(false)
+                        .setPositiveButton("Ya", (dialog, id) -> {
+                            // TODO jika tombol diklik, maka akan menutup activity ini
+                            SharedPreferences.Editor editor = sharedpreferences.edit();
+                            editor.putBoolean(Login.session_status, false);
+                            editor.putString(TAG_ID, null);
+                            editor.apply();
+
+                            Intent intent = new Intent(requireContext(), Login.class);
+//                    finish();
+                            startActivity(intent);
+                        })
+                        .setNegativeButton("Tidak", (dialog, id) -> {
+                            // TODO jika tombol ini diklik, akan menutup dialog
+                            // TODO dan tidak terjadi apa2
+                            dialog.cancel();
+                        });
+
+                // membuat alert dialog dari builder
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // menampilkan alert dialog
+                alertDialog.show();
+            }
+        });
 
         readProfile();
-        back1.setOnClickListener(view -> kembali(new Home()));
-        back2.setOnClickListener(view -> kembali(new Home()));
+        back1.setOnClickListener(view -> kembali());
+        back2.setOnClickListener(view -> kembali());
+        KelolaAkun.setOnClickListener(view -> kelolaAkun());
         return  v;
     }
 
+    private void kelolaAkun() {
+        UbahSandi fragment2 = new UbahSandi();
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment2)
+                .commit();
+    }
 
-    private void kembali(Fragment fragment) {
-        FragmentTransaction transaction =
-                requireActivity().getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, fragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
+    private void kembali() {
+       requireActivity().onBackPressed();
     }
 
     private void readProfile() {
@@ -89,7 +145,7 @@ public class Profile extends Fragment {
             progressDialog.setMessage("Loading...");
             progressDialog.show();
 
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_READ,
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, PROFILE,
                     response -> {
                         progressDialog.dismiss();
                         Log.i(TAG, response);
@@ -151,6 +207,18 @@ public class Profile extends Fragment {
                 }
             };
 
-            AppController.getInstance().addToRequestQueue(stringRequest, tag_json_obj);
+            AppController.getInstance().addToRequestQueue(stringRequest, TAG_JSON_OBJECT);
+    }
+
+    @Override
+    public void onResume() {
+        ((AppCompatActivity)requireActivity()).getSupportActionBar().hide();
+        super.onResume();
+    }
+
+    @Override
+    public void onStop() {
+        ((AppCompatActivity)requireActivity()).getSupportActionBar().show();
+        super.onStop();
     }
 }

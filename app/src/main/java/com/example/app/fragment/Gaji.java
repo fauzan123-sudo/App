@@ -1,5 +1,6 @@
 package com.example.app.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import androidx.transition.Fade;
 
 import com.android.volley.Request;
 import com.android.volley.toolbox.StringRequest;
+import com.example.app.Profil;
 import com.example.app.R;
 import com.example.app.helper.AppController;
 import com.example.app.helper.SessionManager;
@@ -36,7 +38,7 @@ public class Gaji extends Fragment {
     TextView Gaji_Bersih, Nama, Jabatan, Potongan;
     SessionManager sessionManager;
     String getId, getNama, getImage, getJabatan;
-    CircleImageView profile_image;
+//    CircleImageView profile_image;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,84 +60,50 @@ public class Gaji extends Fragment {
         getImage    = user.get(SessionManager.IMAGE);
         getJabatan  = user.get(SessionManager.JABATAN);
         getId = user.get(SessionManager.ID);
-        profile_image       = rootView.findViewById(R.id.profile_image);
-        profile_image.setOnClickListener(view -> ProfilPegawai());
-        Nama.setText(getNama);
-        Jabatan.setText(getJabatan);
-        Picasso.with(requireActivity())
-                .load(urlImagePegawai + getImage)
-                .into(profile_image);
+//        profile_image       = rootView.findViewById(R.id.profile_image);
+//        profile_image.setOnClickListener(view -> ProfilPegawai());
+//        Nama.setText(getNama);
+//        Jabatan.setText(getJabatan);
+//        Picasso.with(requireActivity())
+//                .load(urlImagePegawai + getImage)
+//                .into(profile_image);
         return  rootView;
     }
 
-    private void ProfilPegawai() {
-//        Profile fragment = new Profile();
-////        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-////            fragment.setSharedElementEnterTransition(new Profile());
-////            fragment.setEnterTransition(new Fade());
-////            setExitTransition(new Fade());
-////            fragment.setSharedElementReturnTransition(new Profile());
-////        }
-//        getActivity().getSupportFragmentManager()
-//                .beginTransaction()
-//
-//                .addSharedElement(profile, profile.getTransitionName())
-//                .replace(R.id.container_fragment, fragment)
-//                .addToBackStack(null)
-//                .commit();
-        Profile_Gaji sharedElementFragment2 = new Profile_Gaji();
-
-        Fade slideTransition = new Fade(Fade.MODE_IN);
-        slideTransition.setDuration(1000);
-
-        ChangeBounds changeBoundsTransition = new ChangeBounds();
-        changeBoundsTransition.setDuration(1000);
-
-        sharedElementFragment2.setEnterTransition(slideTransition);
-        sharedElementFragment2.setAllowEnterTransitionOverlap(false);
-        sharedElementFragment2.setAllowReturnTransitionOverlap(false);
-        sharedElementFragment2.setSharedElementEnterTransition(changeBoundsTransition);
-
-        requireActivity().getSupportFragmentManager()
-        .beginTransaction()
-                .replace(R.id.fragment_container, sharedElementFragment2)
-                .addToBackStack(null)
-                .addSharedElement(profile_image, getString(R.string.square_blue_name))
-                .commit();
-    }
+//    private void ProfilPegawai() {
+//        Intent intent = new Intent(requireActivity(), Profil.class);
+//        startActivity(intent);
+//    }
 
     private void parseJSON() {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, gaji,
+                response -> {
+                    Log.i(TAG, response);
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        JSONArray jsonArray = jsonObject.getJSONArray("hasil");
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject hit     = jsonArray.getJSONObject(i);
+                            String gaji_bersih = hit.getString("gaji_bersih");
+                            String potongan    = hit.getString("potongan");
 
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, gaji,
-                    response -> {
-                        Log.i(TAG, response);
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            JSONArray jsonArray = jsonObject.getJSONArray("hasil");
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject hit     = jsonArray.getJSONObject(i);
-                                String gaji_bersih = hit.getString("gaji_bersih");
-//                                    String asuransi    = hit.getString("asuransi");
-                                    String potongan    = hit.getString("potongan");
-
-                                Gaji_Bersih.setText("Rp." + gaji_bersih);
-                                Potongan.setText("Rp. "+ potongan );
-                            }
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                            Gaji_Bersih.setText("Rp." + gaji_bersih);
+                            Potongan.setText("Rp. "+ potongan );
                         }
 
-                    }, Throwable::printStackTrace){
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
-                @Override
-                protected Map<String, String> getParams() {
-                    // Posting parameters ke post url
-                    Map<String, String> params = new HashMap<>();
-                    params.put("id_pegawai", getId);
-                    return params;
-                }};
-            AppController.getInstance().addToRequestQueue(stringRequest, TAG_JSON_OBJECT);
+                }, Throwable::printStackTrace){
 
+            @Override
+            protected Map<String, String> getParams() {
+                // Posting parameters ke post url
+                Map<String, String> params = new HashMap<>();
+                params.put("id_pegawai", getId);
+                return params;
+            }};
+        AppController.getInstance().addToRequestQueue(stringRequest, TAG_JSON_OBJECT);
     }
 }

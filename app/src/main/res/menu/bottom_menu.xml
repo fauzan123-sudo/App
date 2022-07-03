@@ -14,9 +14,7 @@
         />
     <item
         android:id="@+id/scan"
-        android:title="Scan"
-        android:icon="@drawable/ic_qr"
-        />
+        android:title="" />
     <item
         android:id="@+id/gaji"
         android:title="Gaji"
@@ -24,7 +22,7 @@
         />
     <item
         android:id="@+id/profile"
-        android:title="Berita Acara"
-        android:icon="@drawable/ic_history"
+        android:title="Profile"
+        android:icon="@drawable/ic_girl"
         />
 </menu>

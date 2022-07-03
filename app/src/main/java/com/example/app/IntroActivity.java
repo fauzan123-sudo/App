@@ -134,8 +134,6 @@ public class IntroActivity extends AppCompatActivity {
             savePrefsData();
             finish();
 
-
-
         });
 
         // skip button click listener

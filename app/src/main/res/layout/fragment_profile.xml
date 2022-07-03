@@ -15,21 +15,12 @@
         android:background="@color/dark">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_filter"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp"
-            />
-
-        <ImageView
             android:id="@+id/back1"
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_chevron_left" />
+            app:srcCompat="@drawable/ic_chevron_left" />
 
         <TextView
             android:id="@+id/back2"
@@ -83,7 +74,7 @@
                 android:id="@+id/tab"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
-                android:layout_marginTop="60dp"
+                android:layout_marginTop="20dp"
                 android:stretchColumns="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -224,7 +215,9 @@
     </RelativeLayout>
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/profile_image"
+        app:civ_border_width="2dp"
+        app:civ_border_color="@color/white"
+        android:id="@+id/profile_image3"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_above="@id/layoutBottom"
@@ -232,7 +225,26 @@
         android:layout_marginBottom="-40dp"
         android:src="@drawable/profil_circle" />
 
+    <Button
+        android:layout_margin="20dp"
+        android:layout_above="@+id/kelolaAkun"
+        android:id="@+id/logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Keluar"
+        />
+
+    <Button
+        android:id="@+id/kelolaAkun"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Kelola Akun"
+        android:background="@color/red_font"
+        android:layout_margin="20dp"
+        android:layout_above="@+id/pemberitahuan"
+        />
     <TextView
+        android:id="@+id/pemberitahuan"
         android:textAlignment="center"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
@@ -240,7 +252,7 @@
         android:textColor="#F83255"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
-        android:layout_marginBottom="55dp"
+        android:layout_marginBottom="5dp"
         android:text="Jika ada data yang tidak sesuai dengan data diri anda, silahkan hubungi Admin.Terima Kasih"
         />
 
